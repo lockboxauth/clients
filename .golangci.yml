@@ -1,0 +1,29 @@
+issues:
+  max-per-linter: 0
+  max-same-issues: 0
+
+linters:
+  disable-all: true
+  enable:
+    - deadcode
+    - errcheck
+    - goconst
+    - goimports
+    - gosimple
+    - gosec
+    - ineffassign
+    - maligned
+    - misspell
+    - prealloc
+    - scopelint
+    - staticcheck
+    - structcheck
+    - typecheck
+    - unconvert
+    - unused
+    - varcheck
+    - vet
+
+linters-settings:
+  errcheck:
+    ignore: fmt:.*,io:Close
