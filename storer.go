@@ -11,5 +11,5 @@ type Storer interface {
 	Update(ctx context.Context, id string, change Change) error
 	Delete(ctx context.Context, id string) error
 	AddRedirectURIs(ctx context.Context, uris []RedirectURI) error
-	RemoveRedirectURIs(ctx context.Context, uris []string) error
+	RemoveRedirectURIs(ctx context.Context, ids []string) error
 }
