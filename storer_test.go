@@ -411,3 +411,15 @@ func TestRedirectURIsListNonexistantClient(t *testing.T) {
 		}
 	})
 }
+
+// TODO: test creating a client that already exists
+
+// TODO: test updating a client that doesn't exist
+
+// TODO: test deleting a client that doesn't exist
+
+// TODO: test creating a redirect URI with an ID that already exists
+
+// TODO: test creating a redirect URI with a URI that already exists
+
+// TODO: test removing a redirect URI that doesn't exist
