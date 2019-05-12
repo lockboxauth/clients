@@ -6,8 +6,6 @@ import (
 	"crypto/subtle"
 	"encoding/hex"
 	"errors"
-	"fmt"
-	"sort"
 	"time"
 )
 
@@ -71,34 +69,6 @@ func (c Client) CheckSecret(attempt string) error {
 	return nil
 }
 
-// RedirectURI represents a URI that we'll redirect to as part of the OAuth 2
-// dance for a Client. The RedirectURI is an important part of authorizing a
-// client, especially a public one, as it prevents others from using a Client's
-// ID.
-type RedirectURI struct {
-	ID          string    // unique ID per redirect URI
-	URI         string    // the URI to redirect to
-	IsBaseURI   bool      // whether this is the full URI (false) or just a base (true)
-	ClientID    string    // the ID of the Client this redirect URI applies to
-	CreatedAt   time.Time // the timestamp this redirect URI was created at
-	CreatedBy   string    // the HMAC key that created this redirect URI
-	CreatedByIP string    // the IP that created this redirect URI
-}
-
-// ErrRedirectURIAlreadyExists is returned when a redirect URI already exists
-// in a Storer.
-type ErrRedirectURIAlreadyExists struct {
-	ID  string
-	URI string // the URI that already exists
-}
-
-func (e ErrRedirectURIAlreadyExists) Error() string {
-	if e.ID == "" {
-		return fmt.Sprintf("redirect URI %q already exists", e.URI)
-	}
-	return fmt.Sprintf("redirect URI %q already exists", e.ID)
-}
-
 // Change represents a change we'd like to make to a Client. Nil values always
 // represent "no change", whereas empty values will be interpreted as a desire
 // to set the property to the empty value.
@@ -153,10 +123,4 @@ type Storer interface {
 	Delete(ctx context.Context, id string) error
 	AddRedirectURIs(ctx context.Context, uris []RedirectURI) error
 	RemoveRedirectURIs(ctx context.Context, uris []string) error
-}
-
-func RedirectURIsByURI(uris []RedirectURI) {
-	sort.Slice(uris, func(i, j int) bool {
-		return uris[i].URI < uris[j].URI
-	})
 }
