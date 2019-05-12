@@ -1,12 +1,18 @@
 package apiv1
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"darlinggo.co/api"
+	uuid "github.com/hashicorp/go-uuid"
 	"impractical.co/auth/clients"
+	"impractical.co/userip"
 	yall "yall.in"
 )
 
@@ -33,13 +39,62 @@ func (a APIv1) handleCreateClient(w http.ResponseWriter, r *http.Request) {
 	if !body.Client.Confidential && len(body.RedirectURIs) < 1 {
 		reqErrs = append(reqErrs, api.RequestError{Field: "/client/confidential,/redirectURIs", Slug: api.RequestErrConflict})
 	}
-	// TODO: further validation, probably?
-	// TODO: fill defaults?
+	for pos, uri := range body.RedirectURIs {
+		if uri.URI == "" {
+			reqErrs = append(reqErrs, api.RequestError{Field: fmt.Sprintf("/redirectURIs/%d/URI", pos), Slug: api.RequestErrMissing})
+		}
+	}
 	if len(reqErrs) > 0 {
 		api.Encode(w, r, http.StatusBadRequest, reqErrs)
 		return
 	}
+	id, err := uuid.GenerateUUID()
+	if err != nil {
+		yall.FromContext(r.Context()).WithError(err).Error("Error creating client ID")
+		api.Encode(w, r, http.StatusInternalServerError, Response{Errors: api.ActOfGodError})
+		return
+	}
+	body.Client.ID = id
+	body.Client.CreatedAt = time.Now()
+	body.Client.CreatedBy = a.Signer.Key
+	body.Client.CreatedByIP = userip.Get(r)
+	if body.Client.CreatedByIP == "" {
+		yall.FromContext(r.Context()).Error("Couldn't determine user's IP")
+		api.Encode(w, r, http.StatusInternalServerError, Response{Errors: api.ActOfGodError})
+		return
+	}
+	if body.Client.Confidential {
+		b := make([]byte, 16)
+		_, err := rand.Read(b)
+		if err != nil {
+			yall.FromContext(r.Context()).Error("Couldn't generate client secret")
+			api.Encode(w, r, http.StatusInternalServerError, Response{Errors: api.ActOfGodError})
+			return
+		}
+		body.Client.Secret = hex.EncodeToString(b)
+	}
+	for pos, uri := range body.RedirectURIs {
+		id, err := uuid.GenerateUUID()
+		if err != nil {
+			yall.FromContext(r.Context()).WithError(err).Error("Error creating redirect URI ID")
+			api.Encode(w, r, http.StatusInternalServerError, Response{Errors: api.ActOfGodError})
+			return
+		}
+		uri.ID = id
+		uri.ClientID = body.Client.ID
+		uri.CreatedAt = body.Client.CreatedAt
+		uri.CreatedBy = body.Client.CreatedBy
+		uri.CreatedByIP = body.Client.CreatedByIP
+		body.RedirectURIs[pos] = uri
+	}
 	client := coreClient(body.Client)
+	ch, err := clients.ChangeSecret([]byte(body.Client.Secret))
+	if err != nil {
+		yall.FromContext(r.Context()).WithError(err).Error("Error setting client secret")
+		api.Encode(w, r, http.StatusInternalServerError, Response{Errors: api.ActOfGodError})
+		return
+	}
+	clients.Apply(ch, client)
 	redirectURIs := coreRedirectURIs(body.RedirectURIs)
 	err = a.Storer.Create(r.Context(), client)
 	if err != nil {
@@ -77,7 +132,9 @@ func (a APIv1) handleCreateClient(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	yall.FromContext(r.Context()).WithField("client_id", client.ID).Debug("client created")
-	api.Encode(w, r, http.StatusCreated, Response{Clients: []Client{apiClient(client)}, RedirectURIs: apiRedirectURIs(redirectURIs)})
+	respClient := apiClient(client)
+	respClient.Secret = body.Client.Secret
+	api.Encode(w, r, http.StatusCreated, Response{Clients: []Client{respClient}, RedirectURIs: apiRedirectURIs(redirectURIs)})
 }
 
 func (a APIv1) handleGetClient(w http.ResponseWriter, r *http.Request) {

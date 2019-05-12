@@ -13,6 +13,7 @@ type Client struct {
 	CreatedAt    time.Time `json:"createdAt"`
 	CreatedBy    string    `json:"createdBy"`
 	CreatedByIP  string    `json:"createdByIP"`
+	Secret       string    `json:"secret,omitempty"`
 }
 
 func coreClient(client Client) clients.Client {

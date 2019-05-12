@@ -20,5 +20,6 @@ require (
 	google.golang.org/appengine v1.4.0 // indirect
 	gopkg.in/gorp.v1 v1.7.2 // indirect
 	impractical.co/auth/hmac v0.0.0
+	impractical.co/userip v0.0.0-20190512094304-7102ae861013
 	yall.in v0.0.1
 )

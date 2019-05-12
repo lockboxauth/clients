@@ -30,8 +30,6 @@ type APIv1 struct {
 // request. If Response is nil, the returned string can safely be assumed to
 // be an authenticated request body.
 func (a APIv1) VerifyRequest(r *http.Request) (string, *Response) {
-	// this is, in theory, vulnerable to replay attacks
-	// but if deployed over TLS, it shouldn't matter
 	var payload string
 	if r.Method == "POST" || r.Method == "PUT" {
 		defer r.Body.Close()

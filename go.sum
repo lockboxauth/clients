@@ -426,5 +426,7 @@ gopkg.in/mail.v2 v2.0.0-20180731213649-a0242b2233b4/go.mod h1:htwXN1Qh09vZJ1NVKx
 gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7/go.mod h1:dt/ZhP58zS4L8KSrWDmTeBkI65Dw0HsyUHuEVlX15mw=
 gopkg.in/yaml.v2 v2.2.1/go.mod h1:hI93XBmqTisBFMUTm0b8Fm+jr3Dg1NNxqwp+5A1VGuI=
 gopkg.in/yaml.v2 v2.2.2/go.mod h1:hI93XBmqTisBFMUTm0b8Fm+jr3Dg1NNxqwp+5A1VGuI=
+impractical.co/userip v0.0.0-20190512094304-7102ae861013 h1:lNvS9x2z0/4sjgFKXnKFMzwP5Bt+YQiUt9ddOyqtCv8=
+impractical.co/userip v0.0.0-20190512094304-7102ae861013/go.mod h1:qfC1Nnj+4KIeMro9v0qripZyltzqaueuwHEM6EK7RQY=
 yall.in v0.0.1 h1:oQkgnFIY1GmRmWLXjat+Lt8KE/yD3PbEYP7lt71utpo=
 yall.in v0.0.1/go.mod h1:sihZtLjLdINMcMiqCZ6juYVK9XuWt1RaMwGnwGlK1ag=
