@@ -1,4 +1,4 @@
-package storers
+package postgres
 
 import (
 	"time"
@@ -6,7 +6,7 @@ import (
 	"impractical.co/auth/clients"
 )
 
-type postgresClient struct {
+type Client struct {
 	ID           string    `sql_column:"id"`
 	SecretHash   string    `sql_column:"secret_hash"`
 	SecretScheme string    `sql_column:"secret_scheme"`
@@ -16,11 +16,11 @@ type postgresClient struct {
 	CreatedByIP  string    `sql_column:"created_by_ip"`
 }
 
-func (p postgresClient) GetSQLTableName() string {
+func (p Client) GetSQLTableName() string {
 	return "clients"
 }
 
-func fromPostgres(c postgresClient) clients.Client {
+func fromPostgres(c Client) clients.Client {
 	return clients.Client{
 		ID:           c.ID,
 		SecretHash:   c.SecretHash,
@@ -32,8 +32,8 @@ func fromPostgres(c postgresClient) clients.Client {
 	}
 }
 
-func toPostgres(c clients.Client) postgresClient {
-	return postgresClient{
+func toPostgres(c clients.Client) Client {
+	return Client{
 		ID:           c.ID,
 		SecretHash:   c.SecretHash,
 		SecretScheme: c.SecretScheme,
@@ -44,7 +44,7 @@ func toPostgres(c clients.Client) postgresClient {
 	}
 }
 
-type postgresRedirectURI struct {
+type RedirectURI struct {
 	ID          string    `sql_column:"id"`
 	URI         string    `sql_column:"uri"`
 	IsBaseURI   bool      `sql_column:"is_base_uri"`
@@ -54,11 +54,11 @@ type postgresRedirectURI struct {
 	CreatedByIP string    `sql_column:"created_by_ip"`
 }
 
-func (p postgresRedirectURI) GetSQLTableName() string {
+func (p RedirectURI) GetSQLTableName() string {
 	return "redirect_uris"
 }
 
-func uriFromPostgres(u postgresRedirectURI) clients.RedirectURI {
+func uriFromPostgres(u RedirectURI) clients.RedirectURI {
 	return clients.RedirectURI{
 		ID:          u.ID,
 		URI:         u.URI,
@@ -70,8 +70,8 @@ func uriFromPostgres(u postgresRedirectURI) clients.RedirectURI {
 	}
 }
 
-func uriToPostgres(u clients.RedirectURI) postgresRedirectURI {
-	return postgresRedirectURI{
+func uriToPostgres(u clients.RedirectURI) RedirectURI {
+	return RedirectURI{
 		ID:          u.ID,
 		URI:         u.URI,
 		IsBaseURI:   u.IsBaseURI,

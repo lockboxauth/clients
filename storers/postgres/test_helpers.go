@@ -1,4 +1,4 @@
-package storers
+package postgres
 
 import (
 	"context"
@@ -17,38 +17,31 @@ import (
 	"impractical.co/auth/clients/migrations"
 )
 
-func init() {
-	if os.Getenv("PG_TEST_DB") == "" {
-		return
-	}
-	storerConn, err := sql.Open("postgres", os.Getenv("PG_TEST_DB"))
-	if err != nil {
-		panic(err)
-	}
-	storerFactories = append(storerFactories, NewPostgresFactory(storerConn))
-}
+const (
+	TestConnStringEnvVar = "PG_TEST_DB"
+)
 
-type PostgresFactory struct {
+type Factory struct {
 	db        *sql.DB
 	databases map[string]*sql.DB
 	lock      sync.Mutex
 }
 
-func NewPostgresFactory(db *sql.DB) *PostgresFactory {
-	return &PostgresFactory{
+func NewFactory(db *sql.DB) *Factory {
+	return &Factory{
 		db:        db,
 		databases: map[string]*sql.DB{},
 	}
 }
 
-func (p *PostgresFactory) NewStorer(ctx context.Context) (clients.Storer, error) {
-	u, err := url.Parse(os.Getenv("PG_TEST_DB"))
+func (p *Factory) NewStorer(ctx context.Context) (clients.Storer, error) {
+	u, err := url.Parse(os.Getenv(TestConnStringEnvVar))
 	if err != nil {
-		log.Printf("Error parsing PG_TEST_DB as a URL: %+v\n", err)
+		log.Printf("Error parsing %s as a URL: %+v\n", TestConnStringEnvVar, err)
 		return nil, err
 	}
 	if u.Scheme != "postgres" {
-		return nil, errors.New("PG_TEST_DB must begin with postgres://")
+		return nil, errors.New(TestConnStringEnvVar + " must begin with postgres://")
 	}
 
 	tableSuffix, err := uuid.GenerateRandomBytes(6)
@@ -85,12 +78,12 @@ func (p *PostgresFactory) NewStorer(ctx context.Context) (clients.Storer, error)
 		return nil, err
 	}
 
-	storer := NewPostgres(ctx, newConn)
+	storer := NewStorer(ctx, newConn)
 
 	return storer, nil
 }
 
-func (p *PostgresFactory) TeardownStorers() error {
+func (p *Factory) TeardownStorers() error {
 	p.lock.Lock()
 	defer p.lock.Unlock()
 

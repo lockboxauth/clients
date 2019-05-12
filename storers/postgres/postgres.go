@@ -1,4 +1,4 @@
-package storers
+package postgres
 
 import (
 	"context"
@@ -12,23 +12,23 @@ import (
 
 // Postgres is an implementation of the Storer interface
 // that stores data in a PostgreSQL database.
-type Postgres struct {
+type Storer struct {
 	db *sql.DB
 }
 
 // NewPostgres returns a Postgres instance that is backed by the specified
 // *sql.DB. The returned Postgres instance is ready to be used as a Storer.
-func NewPostgres(ctx context.Context, conn *sql.DB) *Postgres {
-	return &Postgres{db: conn}
+func NewStorer(ctx context.Context, conn *sql.DB) *Storer {
+	return &Storer{db: conn}
 }
 
-func (p Postgres) Create(ctx context.Context, client clients.Client) error {
+func (s Storer) Create(ctx context.Context, client clients.Client) error {
 	query := createSQL(ctx, toPostgres(client))
 	queryStr, err := query.PostgreSQLString()
 	if err != nil {
 		return err
 	}
-	_, err = p.db.Exec(queryStr, query.Args()...)
+	_, err = s.db.Exec(queryStr, query.Args()...)
 	if e, ok := err.(*pq.Error); ok {
 		if e.Constraint == "clients_pkey" {
 			err = clients.ErrClientAlreadyExists
@@ -37,17 +37,17 @@ func (p Postgres) Create(ctx context.Context, client clients.Client) error {
 	return err
 }
 
-func (p Postgres) Get(ctx context.Context, id string) (clients.Client, error) {
+func (s Storer) Get(ctx context.Context, id string) (clients.Client, error) {
 	query := getSQL(ctx, id)
 	queryStr, err := query.PostgreSQLString()
 	if err != nil {
 		return clients.Client{}, err
 	}
-	rows, err := p.db.Query(queryStr, query.Args()...)
+	rows, err := s.db.Query(queryStr, query.Args()...)
 	if err != nil {
 		return clients.Client{}, err
 	}
-	var client postgresClient
+	var client Client
 	for rows.Next() {
 		err = pan.Unmarshal(rows, &client)
 		if err != nil {
@@ -63,19 +63,19 @@ func (p Postgres) Get(ctx context.Context, id string) (clients.Client, error) {
 	return fromPostgres(client), nil
 }
 
-func (p Postgres) ListRedirectURIs(ctx context.Context, clientID string) ([]clients.RedirectURI, error) {
+func (s Storer) ListRedirectURIs(ctx context.Context, clientID string) ([]clients.RedirectURI, error) {
 	query := listRedirectURIsSQL(ctx, clientID)
 	queryStr, err := query.PostgreSQLString()
 	if err != nil {
 		return nil, err
 	}
-	rows, err := p.db.Query(queryStr, query.Args()...)
+	rows, err := s.db.Query(queryStr, query.Args()...)
 	if err != nil {
 		return nil, err
 	}
 	var results []clients.RedirectURI
 	for rows.Next() {
-		var uri postgresRedirectURI
+		var uri RedirectURI
 		err = pan.Unmarshal(rows, &uri)
 		if err != nil {
 			return results, err
@@ -89,7 +89,7 @@ func (p Postgres) ListRedirectURIs(ctx context.Context, clientID string) ([]clie
 	return results, nil
 }
 
-func (p Postgres) Update(ctx context.Context, id string, change clients.Change) error {
+func (s Storer) Update(ctx context.Context, id string, change clients.Change) error {
 	if change.IsEmpty() {
 		return nil
 	}
@@ -98,28 +98,28 @@ func (p Postgres) Update(ctx context.Context, id string, change clients.Change) 
 	if err != nil {
 		return err
 	}
-	_, err = p.db.Exec(queryStr, query.Args()...)
+	_, err = s.db.Exec(queryStr, query.Args()...)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p Postgres) Delete(ctx context.Context, id string) error {
+func (s Storer) Delete(ctx context.Context, id string) error {
 	query := deleteSQL(ctx, id)
 	queryStr, err := query.PostgreSQLString()
 	if err != nil {
 		return err
 	}
-	_, err = p.db.Exec(queryStr, query.Args()...)
+	_, err = s.db.Exec(queryStr, query.Args()...)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p Postgres) AddRedirectURIs(ctx context.Context, uris []clients.RedirectURI) error {
-	pgURIs := make([]postgresRedirectURI, 0, len(uris))
+func (s Storer) AddRedirectURIs(ctx context.Context, uris []clients.RedirectURI) error {
+	pgURIs := make([]RedirectURI, 0, len(uris))
 	for _, uri := range uris {
 		pgURIs = append(pgURIs, uriToPostgres(uri))
 	}
@@ -128,7 +128,7 @@ func (p Postgres) AddRedirectURIs(ctx context.Context, uris []clients.RedirectUR
 	if err != nil {
 		return err
 	}
-	_, err = p.db.Exec(queryStr, query.Args()...)
+	_, err = s.db.Exec(queryStr, query.Args()...)
 	if e, ok := err.(*pq.Error); ok {
 		// TODO: we need better error handling for redirect URI inserts
 		// right now we just kind of hand wave
@@ -142,13 +142,13 @@ func (p Postgres) AddRedirectURIs(ctx context.Context, uris []clients.RedirectUR
 	return err
 }
 
-func (p Postgres) RemoveRedirectURIs(ctx context.Context, uris []string) error {
+func (s Storer) RemoveRedirectURIs(ctx context.Context, uris []string) error {
 	query := removeRedirectURIsSQL(ctx, uris)
 	queryStr, err := query.PostgreSQLString()
 	if err != nil {
 		return err
 	}
-	_, err = p.db.Exec(queryStr, query.Args()...)
+	_, err = s.db.Exec(queryStr, query.Args()...)
 	if err != nil {
 		return err
 	}

@@ -1,4 +1,4 @@
-package storers
+package postgres
 
 import (
 	"context"
@@ -7,12 +7,12 @@ import (
 	"impractical.co/auth/clients"
 )
 
-func createSQL(ctx context.Context, client postgresClient) *pan.Query {
+func createSQL(ctx context.Context, client Client) *pan.Query {
 	return pan.Insert(client)
 }
 
 func getSQL(ctx context.Context, id string) *pan.Query {
-	var client postgresClient
+	var client Client
 	q := pan.New("SELECT " + pan.Columns(client).String() + " FROM " + pan.Table(client))
 	q.Where()
 	q.Comparison(client, "ID", "=", id)
@@ -20,7 +20,7 @@ func getSQL(ctx context.Context, id string) *pan.Query {
 }
 
 func listRedirectURIsSQL(ctx context.Context, clientID string) *pan.Query {
-	var redirectURI postgresRedirectURI
+	var redirectURI RedirectURI
 	q := pan.New("SELECT " + pan.Columns(redirectURI).String() + " FROM " + pan.Table(redirectURI))
 	q.Where()
 	q.Comparison(redirectURI, "ClientID", "=", clientID)
@@ -29,7 +29,7 @@ func listRedirectURIsSQL(ctx context.Context, clientID string) *pan.Query {
 }
 
 func updateSQL(ctx context.Context, id string, change clients.Change) *pan.Query {
-	var client postgresClient
+	var client Client
 	q := pan.New("UPDATE " + pan.Table(client) + " SET ")
 	if change.SecretHash != nil {
 		q.Assign(client, "SecretHash", *change.SecretHash)
@@ -44,14 +44,14 @@ func updateSQL(ctx context.Context, id string, change clients.Change) *pan.Query
 }
 
 func deleteSQL(ctx context.Context, id string) *pan.Query {
-	var client postgresClient
+	var client Client
 	q := pan.New("DELETE FROM " + pan.Table(client))
 	q.Where()
 	q.Comparison(client, "ID", "=", id)
 	return q.Flush(" ")
 }
 
-func addRedirectURIsSQL(ctx context.Context, uris []postgresRedirectURI) *pan.Query {
+func addRedirectURIsSQL(ctx context.Context, uris []RedirectURI) *pan.Query {
 	tableNamers := make([]pan.SQLTableNamer, 0, len(uris))
 	for _, uri := range uris {
 		tableNamers = append(tableNamers, uri)
@@ -60,7 +60,7 @@ func addRedirectURIsSQL(ctx context.Context, uris []postgresRedirectURI) *pan.Qu
 }
 
 func removeRedirectURIsSQL(ctx context.Context, uris []string) *pan.Query {
-	var uri postgresRedirectURI
+	var uri RedirectURI
 	q := pan.New("DELETE FROM " + pan.Table(uri))
 	q.Where()
 	interfaces := make([]interface{}, 0, len(uris))
