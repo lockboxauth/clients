@@ -29,6 +29,7 @@ var (
 
 // Client represents an API client.
 type Client struct {
+	// TODO: add a Name field for user-friendly name
 	ID           string    // unique ID per client
 	SecretHash   string    // hash of unique secret to authenticate with (optional)
 	SecretScheme string    // the hashing scheme used for the secret
