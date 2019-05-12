@@ -1,17 +1,31 @@
 package apiv1
 
 import (
+	"time"
+
 	"impractical.co/auth/clients"
 )
 
 // RedirectURI is an API-specific representation of a redirect URI.
 type RedirectURI struct {
-	// TODO: fill in API fields
+	ID          string    `json:"ID"`
+	URI         string    `json:"URI"`
+	IsBaseURI   bool      `json:"isBaseURI"`
+	ClientID    string    `json:"clientID"`
+	CreatedAt   time.Time `json:"createdAt"`
+	CreatedBy   string    `json:"createdBy"`
+	CreatedByIP string    `json:"createdByIP"`
 }
 
 func coreRedirectURI(redirectURI RedirectURI) clients.RedirectURI {
 	return clients.RedirectURI{
-		// TODO: map API fields to RedirectURI struct
+		ID:          redirectURI.ID,
+		URI:         redirectURI.URI,
+		IsBaseURI:   redirectURI.IsBaseURI,
+		ClientID:    redirectURI.ClientID,
+		CreatedAt:   redirectURI.CreatedAt,
+		CreatedBy:   redirectURI.CreatedBy,
+		CreatedByIP: redirectURI.CreatedByIP,
 	}
 }
 
@@ -25,7 +39,13 @@ func coreRedirectURIs(uris []RedirectURI) []clients.RedirectURI {
 
 func apiRedirectURI(redirectURI clients.RedirectURI) RedirectURI {
 	return RedirectURI{
-		// TODO: map API fields to RedirectURI struct
+		ID:          redirectURI.ID,
+		URI:         redirectURI.URI,
+		IsBaseURI:   redirectURI.IsBaseURI,
+		ClientID:    redirectURI.ClientID,
+		CreatedAt:   redirectURI.CreatedAt,
+		CreatedBy:   redirectURI.CreatedBy,
+		CreatedByIP: redirectURI.CreatedByIP,
 	}
 }
 
