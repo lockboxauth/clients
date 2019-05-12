@@ -298,7 +298,7 @@ func TestRedirectURIsCreateListDelete(t *testing.T) {
 					CreatedByIP: "127.0.0.1",
 				})
 			}
-			err = storer.AddRedirectURIs(ctx, client.ID, newRedirectURIs)
+			err = storer.AddRedirectURIs(ctx, newRedirectURIs)
 			if err != nil {
 				t.Errorf("Error storing redirect URIs: %s", err)
 			}
@@ -319,7 +319,7 @@ func TestRedirectURIsCreateListDelete(t *testing.T) {
 				}
 			}
 		}
-		err = storer.RemoveRedirectURIs(ctx, client.ID, []string{redirectURIs[0].ID})
+		err = storer.RemoveRedirectURIs(ctx, []string{redirectURIs[0].ID})
 		if err != nil {
 			t.Errorf("Error removing redirect URIs: %s", err)
 		}
@@ -339,7 +339,7 @@ func TestRedirectURIsCreateListDelete(t *testing.T) {
 			}
 			ids = append(ids, uri.ID)
 		}
-		err = storer.RemoveRedirectURIs(ctx, client.ID, ids)
+		err = storer.RemoveRedirectURIs(ctx, ids)
 		if err != nil {
 			t.Errorf("Error removing redirect URIs: %v", err)
 		}

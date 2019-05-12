@@ -51,7 +51,7 @@ func (a APIv1) handleCreateClient(w http.ResponseWriter, r *http.Request) {
 		api.Encode(w, r, http.StatusInternalServerError, Response{Errors: api.ActOfGodError})
 		return
 	}
-	err = a.Storer.AddRedirectURIs(r.Context(), client.ID, redirectURIs)
+	err = a.Storer.AddRedirectURIs(r.Context(), redirectURIs)
 	if err != nil {
 		if e, ok := err.(clients.ErrRedirectURIAlreadyExists); ok {
 			pos := -1

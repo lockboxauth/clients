@@ -10,7 +10,7 @@ import (
 	"os"
 	"sync"
 
-	"github.com/hashicorp/go-uuid"
+	uuid "github.com/hashicorp/go-uuid"
 	migrate "github.com/rubenv/sql-migrate"
 
 	"impractical.co/auth/clients"
@@ -56,7 +56,7 @@ func (p *PostgresFactory) NewStorer(ctx context.Context) (clients.Storer, error)
 		log.Printf("Error generating table suffix: %+v\n", err)
 		return nil, err
 	}
-	table := "accounts_test_" + hex.EncodeToString(tableSuffix)
+	table := "clients_test_" + hex.EncodeToString(tableSuffix)
 
 	_, err = p.db.Exec("CREATE DATABASE " + table + ";")
 	if err != nil {

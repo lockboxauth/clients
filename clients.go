@@ -30,7 +30,7 @@ var (
 	ErrUnsupportedSecretScheme = errors.New("an unsupported secret scheme was used")
 )
 
-/// go:generate go-bindata -pkg migrations -o migrations/generated.go sql/
+//go:generate go-bindata -pkg migrations -o migrations/generated.go sql/
 
 // Client represents an API client.
 type Client struct {
@@ -151,8 +151,8 @@ type Storer interface {
 	ListRedirectURIs(ctx context.Context, clientID string) ([]RedirectURI, error)
 	Update(ctx context.Context, id string, change Change) error
 	Delete(ctx context.Context, id string) error
-	AddRedirectURIs(ctx context.Context, clientID string, uris []RedirectURI) error
-	RemoveRedirectURIs(ctx context.Context, clientID string, uris []string) error
+	AddRedirectURIs(ctx context.Context, uris []RedirectURI) error
+	RemoveRedirectURIs(ctx context.Context, uris []string) error
 }
 
 func RedirectURIsByURI(uris []RedirectURI) {

@@ -2,7 +2,6 @@ package storers
 
 import (
 	"context"
-	"fmt"
 
 	memdb "github.com/hashicorp/go-memdb"
 	"impractical.co/auth/clients"
@@ -148,7 +147,7 @@ func (m Memstore) ListRedirectURIs(ctx context.Context, clientID string) ([]clie
 	return uris, nil
 }
 
-func (m Memstore) AddRedirectURIs(ctx context.Context, clientID string, uris []clients.RedirectURI) error {
+func (m Memstore) AddRedirectURIs(ctx context.Context, uris []clients.RedirectURI) error {
 	txn := m.db.Txn(true)
 	defer txn.Abort()
 	for _, uri := range uris {
@@ -176,7 +175,7 @@ func (m Memstore) AddRedirectURIs(ctx context.Context, clientID string, uris []c
 	return nil
 }
 
-func (m Memstore) RemoveRedirectURIs(ctx context.Context, clientID string, uris []string) error {
+func (m Memstore) RemoveRedirectURIs(ctx context.Context, uris []string) error {
 	txn := m.db.Txn(true)
 	defer txn.Abort()
 	for _, uri := range uris {
@@ -186,9 +185,6 @@ func (m Memstore) RemoveRedirectURIs(ctx context.Context, clientID string, uris 
 		}
 		if exists == nil {
 			continue
-		}
-		if exists.(*clients.RedirectURI).ClientID != clientID {
-			return fmt.Errorf("URI %q doesn't belong to client %q", uri, clientID)
 		}
 		err = txn.Delete("redirect_uri", exists)
 		if err != nil {
