@@ -1,7 +1,7 @@
 -- +migrate Up
 CREATE TABLE clients (
 	id VARCHAR(36) PRIMARY KEY,
-	secret_hash VARCHAR(128) NOT NULL DEFAULT '',
+	secret_hash TEXT NOT NULL DEFAULT '',
 	secret_scheme VARCHAR(32) NOT NULL DEFAULT '',
 	confidential BOOLEAN NOT NULL DEFAULT false,
 	created_at TIMESTAMPTZ NOT NULL,
