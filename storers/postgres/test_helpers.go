@@ -14,7 +14,7 @@ import (
 	migrate "github.com/rubenv/sql-migrate"
 
 	"impractical.co/auth/clients"
-	"impractical.co/auth/clients/migrations"
+	"impractical.co/auth/clients/storers/postgres/migrations"
 )
 
 const (

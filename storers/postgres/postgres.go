@@ -10,6 +10,8 @@ import (
 	"github.com/lib/pq"
 )
 
+//go:generate go-bindata -pkg migrations -o migrations/generated.go sql/
+
 // Postgres is an implementation of the Storer interface
 // that stores data in a PostgreSQL database.
 type Storer struct {

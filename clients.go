@@ -1,7 +1,6 @@
 package clients
 
 import (
-	"context"
 	"crypto/sha256"
 	"crypto/subtle"
 	"encoding/hex"
@@ -27,8 +26,6 @@ var (
 	// scheme that we don't know how to use.
 	ErrUnsupportedSecretScheme = errors.New("an unsupported secret scheme was used")
 )
-
-//go:generate go-bindata -pkg migrations -o migrations/generated.go sql/
 
 // Client represents an API client.
 type Client struct {
@@ -111,16 +108,4 @@ func Apply(change Change, client Client) Client {
 		res.SecretScheme = *change.SecretScheme
 	}
 	return res
-}
-
-// Storer is an interface for storing, retrieving, and modifying Clients and
-// the metadata surrounding them.
-type Storer interface {
-	Create(ctx context.Context, client Client) error
-	Get(ctx context.Context, id string) (Client, error)
-	ListRedirectURIs(ctx context.Context, clientID string) ([]RedirectURI, error)
-	Update(ctx context.Context, id string, change Change) error
-	Delete(ctx context.Context, id string) error
-	AddRedirectURIs(ctx context.Context, uris []RedirectURI) error
-	RemoveRedirectURIs(ctx context.Context, uris []string) error
 }

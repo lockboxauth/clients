@@ -1,4 +1,4 @@
-package storers
+package clients_test
 
 import (
 	"context"
