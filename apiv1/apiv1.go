@@ -7,9 +7,10 @@ import (
 	"net/http"
 
 	"darlinggo.co/api"
-	"impractical.co/auth/hmac"
-	"lockbox.dev/clients"
 	yall "yall.in"
+
+	"lockbox.dev/clients"
+	"lockbox.dev/hmac"
 )
 
 // APIv1 holds all the information that we want to

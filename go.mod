@@ -1,6 +1,7 @@
 module lockbox.dev/clients
 
-replace impractical.co/auth/hmac v0.0.0 => ../hmac
+// TODO: use a real version of this
+replace lockbox.dev/hmac v0.0.0 => ../hmac
 
 require (
 	bitbucket.org/ww/goautoneg v0.0.0-20120707110453-75cd24fc2f2c // indirect
@@ -19,7 +20,7 @@ require (
 	github.com/ziutek/mymysql v1.5.4 // indirect
 	google.golang.org/appengine v1.4.0 // indirect
 	gopkg.in/gorp.v1 v1.7.2 // indirect
-	impractical.co/auth/hmac v0.0.0
 	impractical.co/userip v0.0.0-20190512094304-7102ae861013
+	lockbox.dev/hmac v0.0.0
 	yall.in v0.0.1
 )
