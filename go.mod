@@ -1,4 +1,4 @@
-module impractical.co/auth/clients
+module lockbox.dev/clients
 
 replace impractical.co/auth/hmac v0.0.0 => ../hmac
 

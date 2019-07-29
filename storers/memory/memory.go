@@ -4,7 +4,7 @@ import (
 	"context"
 
 	memdb "github.com/hashicorp/go-memdb"
-	"impractical.co/auth/clients"
+	"lockbox.dev/clients"
 )
 
 var (

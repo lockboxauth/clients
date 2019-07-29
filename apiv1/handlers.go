@@ -12,8 +12,8 @@ import (
 	"darlinggo.co/api"
 	"darlinggo.co/trout"
 	uuid "github.com/hashicorp/go-uuid"
-	"impractical.co/auth/clients"
 	"impractical.co/userip"
+	"lockbox.dev/clients"
 	yall "yall.in"
 )
 

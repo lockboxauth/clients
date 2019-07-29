@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"darlinggo.co/pan"
-	"impractical.co/auth/clients"
+	"lockbox.dev/clients"
 )
 
 func createSQL(ctx context.Context, client Client) *pan.Query {

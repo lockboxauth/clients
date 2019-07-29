@@ -3,7 +3,7 @@ package apiv1
 import (
 	"time"
 
-	"impractical.co/auth/clients"
+	"lockbox.dev/clients"
 )
 
 // RedirectURI is an API-specific representation of a redirect URI.

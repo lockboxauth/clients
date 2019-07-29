@@ -12,9 +12,9 @@ import (
 
 	uuid "github.com/hashicorp/go-uuid"
 
-	"impractical.co/auth/clients"
-	"impractical.co/auth/clients/storers/memory"
-	"impractical.co/auth/clients/storers/postgres"
+	"lockbox.dev/clients"
+	"lockbox.dev/clients/storers/memory"
+	"lockbox.dev/clients/storers/postgres"
 )
 
 const (

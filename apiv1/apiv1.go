@@ -7,8 +7,8 @@ import (
 	"net/http"
 
 	"darlinggo.co/api"
-	"impractical.co/auth/clients"
 	"impractical.co/auth/hmac"
+	"lockbox.dev/clients"
 	yall "yall.in"
 )
 

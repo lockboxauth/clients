@@ -3,7 +3,7 @@ package postgres
 import (
 	"time"
 
-	"impractical.co/auth/clients"
+	"lockbox.dev/clients"
 )
 
 type RedirectURI struct {

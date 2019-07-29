@@ -3,7 +3,7 @@ package apiv1
 import (
 	"time"
 
-	"impractical.co/auth/clients"
+	"lockbox.dev/clients"
 )
 
 // Client is an API-specific representation of a client.

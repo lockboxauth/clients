@@ -5,7 +5,8 @@ import (
 	"database/sql"
 
 	"darlinggo.co/pan"
-	"impractical.co/auth/clients"
+
+	"lockbox.dev/clients"
 
 	"github.com/lib/pq"
 )

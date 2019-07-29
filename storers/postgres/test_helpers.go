@@ -13,8 +13,8 @@ import (
 	uuid "github.com/hashicorp/go-uuid"
 	migrate "github.com/rubenv/sql-migrate"
 
-	"impractical.co/auth/clients"
-	"impractical.co/auth/clients/storers/postgres/migrations"
+	"lockbox.dev/clients"
+	"lockbox.dev/clients/storers/postgres/migrations"
 )
 
 const (
