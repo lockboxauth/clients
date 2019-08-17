@@ -31,6 +31,9 @@ func listRedirectURIsSQL(ctx context.Context, clientID string) *pan.Query {
 func updateSQL(ctx context.Context, id string, change clients.Change) *pan.Query {
 	var client Client
 	q := pan.New("UPDATE " + pan.Table(client) + " SET ")
+	if change.Name != nil {
+		q.Assign(client, "Name", *change.Name)
+	}
 	if change.SecretHash != nil {
 		q.Assign(client, "SecretHash", *change.SecretHash)
 	}

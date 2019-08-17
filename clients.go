@@ -29,8 +29,8 @@ var (
 
 // Client represents an API client.
 type Client struct {
-	// TODO: add a Name field for user-friendly name
 	ID           string    // unique ID per client
+	Name         string    // friendly name for this client
 	SecretHash   string    // hash of unique secret to authenticate with (optional)
 	SecretScheme string    // the hashing scheme used for the secret
 	Confidential bool      // whether this is a confidential (true) or public (false) client
@@ -71,12 +71,16 @@ func (c Client) CheckSecret(attempt string) error {
 // represent "no change", whereas empty values will be interpreted as a desire
 // to set the property to the empty value.
 type Change struct {
+	Name         *string
 	SecretHash   *string
 	SecretScheme *string
 }
 
 // IsEmpty returns true if none of the fields in Change are set.
 func (c Change) IsEmpty() bool {
+	if c.Name != nil {
+		return false
+	}
 	if c.SecretHash != nil {
 		return false
 	}
@@ -102,6 +106,9 @@ func Apply(change Change, client Client) Client {
 		return client
 	}
 	res := client
+	if change.Name != nil {
+		res.Name = *change.Name
+	}
 	if change.SecretHash != nil {
 		res.SecretHash = *change.SecretHash
 	}

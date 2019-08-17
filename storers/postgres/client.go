@@ -8,6 +8,7 @@ import (
 
 type Client struct {
 	ID           string    `sql_column:"id"`
+	Name         string    `sql_column:"name"`
 	SecretHash   string    `sql_column:"secret_hash"`
 	SecretScheme string    `sql_column:"secret_scheme"`
 	Confidential bool      `sql_column:"confidential"`
@@ -23,6 +24,7 @@ func (p Client) GetSQLTableName() string {
 func fromPostgres(c Client) clients.Client {
 	return clients.Client{
 		ID:           c.ID,
+		Name:         c.Name,
 		SecretHash:   c.SecretHash,
 		SecretScheme: c.SecretScheme,
 		Confidential: c.Confidential,
@@ -35,6 +37,7 @@ func fromPostgres(c Client) clients.Client {
 func toPostgres(c clients.Client) Client {
 	return Client{
 		ID:           c.ID,
+		Name:         c.Name,
 		SecretHash:   c.SecretHash,
 		SecretScheme: c.SecretScheme,
 		Confidential: c.Confidential,

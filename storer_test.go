@@ -19,6 +19,7 @@ import (
 
 const (
 	changeSecret = 1 << iota
+	changeName
 	changeVariations
 )
 
@@ -41,6 +42,9 @@ func uuidOrFail(t *testing.T) string {
 func compareClients(client1, client2 clients.Client) (ok bool, field string, val1, val2 interface{}) {
 	if client1.ID != client2.ID {
 		return false, "ID", client1.ID, client2.ID
+	}
+	if client1.Name != client2.Name {
+		return false, "Name", client1.Name, client2.Name
 	}
 	if client1.SecretHash != client2.SecretHash {
 		return false, "SecretHash", client1.SecretHash, client2.SecretHash
@@ -135,6 +139,7 @@ func TestClientCreateGetDelete(t *testing.T) {
 	runTest(t, func(t *testing.T, storer clients.Storer, ctx context.Context) {
 		client := clients.Client{
 			ID:           uuidOrFail(t),
+			Name:         "Test Client",
 			Confidential: true,
 			CreatedAt:    time.Now().Round(time.Millisecond),
 			CreatedBy:    "test",
@@ -177,6 +182,7 @@ func TestClientUpdateOneOfMany(t *testing.T) {
 
 				client := clients.Client{
 					ID:           uuidOrFail(t),
+					Name:         "Test Client",
 					Confidential: true,
 					CreatedAt:    time.Now().Round(time.Millisecond),
 					CreatedBy:    "test",
@@ -196,6 +202,7 @@ func TestClientUpdateOneOfMany(t *testing.T) {
 				for x := 0; x < 5; x++ {
 					throwaways = append(throwaways, clients.Client{
 						ID:           uuidOrFail(t),
+						Name:         fmt.Sprintf("Test Client %d", i),
 						Confidential: i%2 == 0,
 						CreatedAt:    time.Now().Round(time.Millisecond),
 						CreatedBy:    "test",
@@ -219,6 +226,10 @@ func TestClientUpdateOneOfMany(t *testing.T) {
 					}
 					change.SecretHash = ch.SecretHash
 					change.SecretScheme = ch.SecretScheme
+				}
+				if i&changeName != 0 {
+					name := fmt.Sprintf("Updated Test Client %d", i)
+					change.Name = &name
 				}
 				expectation := clients.Apply(change, client)
 				err = storer.Update(ctx, client.ID, change)
@@ -253,6 +264,7 @@ func TestClientUpdateNoChange(t *testing.T) {
 	runTest(t, func(t *testing.T, storer clients.Storer, ctx context.Context) {
 		client := clients.Client{
 			ID:           uuidOrFail(t),
+			Name:         "Test Client",
 			Confidential: true,
 			CreatedAt:    time.Now().Round(time.Millisecond),
 			CreatedBy:    "test",
@@ -288,6 +300,7 @@ func TestRedirectURIsCreateListDelete(t *testing.T) {
 	runTest(t, func(t *testing.T, storer clients.Storer, ctx context.Context) {
 		client := clients.Client{
 			ID:           uuidOrFail(t),
+			Name:         "Test Client",
 			Confidential: true,
 			CreatedAt:    time.Now().Round(time.Millisecond),
 			CreatedBy:    "test",
@@ -376,6 +389,7 @@ func TestRedirectURIsListNone(t *testing.T) {
 	runTest(t, func(t *testing.T, storer clients.Storer, ctx context.Context) {
 		client := clients.Client{
 			ID:           uuidOrFail(t),
+			Name:         "Test Client",
 			Confidential: true,
 			CreatedAt:    time.Now().Round(time.Millisecond),
 			CreatedBy:    "test",
