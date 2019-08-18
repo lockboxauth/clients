@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"darlinggo.co/api"
-	"darlinggo.co/trout"
+	"darlinggo.co/trout/v2"
 	uuid "github.com/hashicorp/go-uuid"
 	"impractical.co/userip"
 	"lockbox.dev/clients"
