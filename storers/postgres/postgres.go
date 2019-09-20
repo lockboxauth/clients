@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"darlinggo.co/pan"
+	"yall.in"
 
 	"lockbox.dev/clients"
 
@@ -137,29 +138,33 @@ func (s Storer) AddRedirectURIs(ctx context.Context, uris []clients.RedirectURI)
 	}
 	_, err = s.db.Exec(queryStr, query.Args()...)
 	if e, ok := err.(*pq.Error); ok {
+		redErr := clients.ErrRedirectURIAlreadyExists{
+			Err: e,
+		}
 		if e.Constraint == "redirect_uris_pkey" {
 			matches := redirectURIValueRegex.FindStringSubmatch(e.Detail)
 			if len(matches) < 3 {
-				// TODO: log something?
-				return err
+				yall.FromContext(ctx).WithError(err).WithField("matches", len(matches)).Error("unexpected number of redirect URI constraint error matches")
+				return redErr
 			}
 			if matches[1] != "id" {
-				// TODO: log something?
-				return err
+				yall.FromContext(ctx).WithError(err).WithField("column", matches[1]).Error("unexpected column for redirect URI constraint error")
+				return redErr
 			}
-			return clients.ErrRedirectURIAlreadyExists{ID: strings.TrimSpace(matches[2])}
+			redErr.ID = strings.TrimSpace(matches[2])
 		} else if e.Constraint == "redirect_uris_unique_uri" {
 			matches := redirectURIValueRegex.FindStringSubmatch(e.Detail)
 			if len(matches) < 3 {
-				// TODO: log something?
-				return err
+				yall.FromContext(ctx).WithError(err).WithField("matches", len(matches)).Error("unexpected number of redirect URI constraint error matches")
+				return redErr
 			}
 			if matches[1] != "uri" {
-				// TODO: log something?
-				return err
+				yall.FromContext(ctx).WithError(err).WithField("matches", len(matches)).Error("unexpected column for redirect URI constraint error")
+				return redErr
 			}
-			return clients.ErrRedirectURIAlreadyExists{URI: strings.TrimSpace(matches[2])}
+			redErr.URI = strings.TrimSpace(matches[2])
 		}
+		return redErr
 	}
 	return err
 }

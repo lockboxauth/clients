@@ -25,10 +25,14 @@ type RedirectURI struct {
 type ErrRedirectURIAlreadyExists struct {
 	ID  string
 	URI string // the URI that already exists
+	Err error  // the error that was returned, if any
 }
 
 // Error fills the error interface for RedirectURIs.
 func (e ErrRedirectURIAlreadyExists) Error() string {
+	if e.ID == "" && e.URL == "" && e.Err != nil {
+		return e.Err.Error()
+	}
 	if e.ID == "" {
 		return fmt.Sprintf("redirect URI %q already exists", e.URI)
 	}
