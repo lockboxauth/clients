@@ -2,6 +2,7 @@
 // sources:
 // sql/20181208_1_init.sql
 // sql/20190816_1_add_name.sql
+// sql/20190920_1_unique_uris.sql
 // DO NOT EDIT!
 
 package migrations
@@ -109,6 +110,26 @@ func sql20190816_1_add_nameSql() (*asset, error) {
 	return a, nil
 }
 
+var _sql20190920_1_unique_urisSql = []byte("\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\xff\xd2\xd5\x55\xd0\xce\xcd\x4c\x2f\x4a\x2c\x49\x55\x08\x2d\xe0\x72\xf4\x09\x71\x0d\x52\x08\x71\x74\xf2\x71\x55\x28\x4a\x4d\xc9\x2c\x4a\x4d\x2e\x89\x2f\x2d\xca\x2c\x56\x70\x74\x71\x51\x70\xf6\xf7\x0b\x0e\x09\x72\xf4\xf4\x0b\x41\x95\x8c\x2f\xcd\xcb\x2c\x2c\x4d\x05\xb1\x15\x42\xfd\x3c\x03\x43\x5d\x35\x4a\x8b\x32\x35\xad\xb9\xb8\x90\x8d\x77\xc9\x2f\xcf\xc3\x63\x81\x4b\x90\x7f\x00\x31\x36\x58\x73\x01\x02\x00\x00\xff\xff\x6e\xb5\xc3\x82\xb4\x00\x00\x00")
+
+func sql20190920_1_unique_urisSqlBytes() ([]byte, error) {
+	return bindataRead(
+		_sql20190920_1_unique_urisSql,
+		"sql/20190920_1_unique_uris.sql",
+	)
+}
+
+func sql20190920_1_unique_urisSql() (*asset, error) {
+	bytes, err := sql20190920_1_unique_urisSqlBytes()
+	if err != nil {
+		return nil, err
+	}
+
+	info := bindataFileInfo{name: "sql/20190920_1_unique_uris.sql", size: 180, mode: os.FileMode(436), modTime: time.Unix(1568966914, 0)}
+	a := &asset{bytes: bytes, info: info}
+	return a, nil
+}
+
 // Asset loads and returns the asset for the given name.
 // It returns an error if the asset could not be found or
 // could not be loaded.
@@ -163,6 +184,7 @@ func AssetNames() []string {
 var _bindata = map[string]func() (*asset, error){
 	"sql/20181208_1_init.sql": sql20181208_1_initSql,
 	"sql/20190816_1_add_name.sql": sql20190816_1_add_nameSql,
+	"sql/20190920_1_unique_uris.sql": sql20190920_1_unique_urisSql,
 }
 
 // AssetDir returns the file names below a certain
@@ -208,6 +230,7 @@ var _bintree = &bintree{nil, map[string]*bintree{
 	"sql": &bintree{nil, map[string]*bintree{
 		"20181208_1_init.sql": &bintree{sql20181208_1_initSql, map[string]*bintree{}},
 		"20190816_1_add_name.sql": &bintree{sql20190816_1_add_nameSql, map[string]*bintree{}},
+		"20190920_1_unique_uris.sql": &bintree{sql20190920_1_unique_urisSql, map[string]*bintree{}},
 	}},
 }}
 

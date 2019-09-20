@@ -3,6 +3,8 @@ package postgres
 import (
 	"context"
 	"database/sql"
+	"regexp"
+	"strings"
 
 	"darlinggo.co/pan"
 
@@ -10,6 +12,8 @@ import (
 
 	"github.com/lib/pq"
 )
+
+var redirectURIValueRegex = regexp.MustCompile("^Key \\(([^)]*)\\)=\\(([^)]*)\\) already exists.$")
 
 //go:generate go-bindata -pkg migrations -o migrations/generated.go sql/
 
@@ -133,13 +137,28 @@ func (s Storer) AddRedirectURIs(ctx context.Context, uris []clients.RedirectURI)
 	}
 	_, err = s.db.Exec(queryStr, query.Args()...)
 	if e, ok := err.(*pq.Error); ok {
-		// TODO: we need better error handling for redirect URI inserts
-		// right now we just kind of hand wave
-		// but in theory, shouldn't the URIs be unique?
-		// and we should be able to identify which URI caused the error
-		// all-in-all, we can probably do better here
 		if e.Constraint == "redirect_uris_pkey" {
-			err = clients.ErrClientAlreadyExists
+			matches := redirectURIValueRegex.FindStringSubmatch(e.Detail)
+			if len(matches) < 3 {
+				// TODO: log something?
+				return err
+			}
+			if matches[1] != "id" {
+				// TODO: log something?
+				return err
+			}
+			return clients.ErrRedirectURIAlreadyExists{ID: strings.TrimSpace(matches[2])}
+		} else if e.Constraint == "redirect_uris_unique_uri" {
+			matches := redirectURIValueRegex.FindStringSubmatch(e.Detail)
+			if len(matches) < 3 {
+				// TODO: log something?
+				return err
+			}
+			if matches[1] != "uri" {
+				// TODO: log something?
+				return err
+			}
+			return clients.ErrRedirectURIAlreadyExists{URI: strings.TrimSpace(matches[2])}
 		}
 	}
 	return err
