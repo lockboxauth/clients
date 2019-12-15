@@ -474,8 +474,108 @@ func TestRedirectURIsListNonexistantClient(t *testing.T) {
 	})
 }
 
-// TODO: test creating a redirect URI with an ID that already exists
+func TestRedirectURIIDAlreadyExists(t *testing.T) {
+	runTest(t, func(t *testing.T, storer clients.Storer, ctx context.Context) {
+		client := clients.Client{
+			ID:           uuidOrFail(t),
+			Name:         "Test Client",
+			Confidential: true,
+			CreatedAt:    time.Now().Round(time.Millisecond),
+			CreatedBy:    "test",
+			CreatedByIP:  "127.0.0.1",
+		}
+		ch, err := clients.ChangeSecret([]byte("test secret"))
+		if err != nil {
+			t.Fatalf("Error generating client secret: %s", err)
+		}
+		client = clients.Apply(ch, client)
+		err = storer.Create(ctx, client)
+		if err != nil {
+			t.Fatalf("Error creating client: %s", err)
+		}
 
-// TODO: test creating a redirect URI with a URI that already exists
+		uri := clients.RedirectURI{
+			ID:          uuidOrFail(t),
+			URI:         "https://test-1.impractical.services/testing",
+			IsBaseURI:   false,
+			ClientID:    client.ID,
+			CreatedAt:   time.Now().Round(time.Millisecond),
+			CreatedBy:   "test",
+			CreatedByIP: "127.0.0.1",
+		}
+		err = storer.AddRedirectURIs(ctx, []clients.RedirectURI{uri})
+		if err != nil {
+			t.Fatalf("Error adding redirect URI: %s", err)
+		}
+		uri.URI += "/test"
+		uri2 := clients.RedirectURI{
+			ID:          uuidOrFail(t),
+			URI:         "https://test-2.impractical.services/testing",
+			IsBaseURI:   false,
+			ClientID:    client.ID,
+			CreatedAt:   time.Now().Round(time.Millisecond),
+			CreatedBy:   "test",
+			CreatedByIP: "127.0.0.1",
+		}
+		err = storer.AddRedirectURIs(ctx, []clients.RedirectURI{uri, uri2})
+		if e, ok := err.(clients.ErrRedirectURIAlreadyExists); !ok {
+			t.Errorf("Expected %T, got %v", clients.ErrRedirectURIAlreadyExists{}, err)
+		} else if e.ID != uri.ID {
+			t.Errorf("Expected ErrRedirectURIAlreadyExists to be for %s, was for %s", uri.ID, e.ID)
+		}
+	})
+}
+
+func TestRedirectURIURIAlreadyExists(t *testing.T) {
+	runTest(t, func(t *testing.T, storer clients.Storer, ctx context.Context) {
+		client := clients.Client{
+			ID:           uuidOrFail(t),
+			Name:         "Test Client",
+			Confidential: true,
+			CreatedAt:    time.Now().Round(time.Millisecond),
+			CreatedBy:    "test",
+			CreatedByIP:  "127.0.0.1",
+		}
+		ch, err := clients.ChangeSecret([]byte("test secret"))
+		if err != nil {
+			t.Fatalf("Error generating client secret: %s", err)
+		}
+		client = clients.Apply(ch, client)
+		err = storer.Create(ctx, client)
+		if err != nil {
+			t.Fatalf("Error creating client: %s", err)
+		}
+
+		uri := clients.RedirectURI{
+			ID:          uuidOrFail(t),
+			URI:         "https://test-1.impractical.services/testing",
+			IsBaseURI:   false,
+			ClientID:    client.ID,
+			CreatedAt:   time.Now().Round(time.Millisecond),
+			CreatedBy:   "test",
+			CreatedByIP: "127.0.0.1",
+		}
+		err = storer.AddRedirectURIs(ctx, []clients.RedirectURI{uri})
+		if err != nil {
+			t.Fatalf("Error adding redirect URI: %s", err)
+		}
+		uri.ID = uuidOrFail(t)
+		uri2 := clients.RedirectURI{
+			ID:          uuidOrFail(t),
+			URI:         "https://test-2.impractical.services/testing",
+			IsBaseURI:   false,
+			ClientID:    client.ID,
+			CreatedAt:   time.Now().Round(time.Millisecond),
+			CreatedBy:   "test",
+			CreatedByIP: "127.0.0.1",
+		}
+		err = storer.AddRedirectURIs(ctx, []clients.RedirectURI{uri, uri2})
+		if e, ok := err.(clients.ErrRedirectURIAlreadyExists); !ok {
+			t.Errorf("Expected %T, got %v", clients.ErrRedirectURIAlreadyExists{}, err)
+		} else if e.URI != uri.URI {
+			t.Errorf("Expected ErrRedirectURIAlreadyExists to be for %s, was for %s", uri.URI, e.URI)
+		}
+	})
+}
 
 // TODO: test removing a redirect URI that doesn't exist
