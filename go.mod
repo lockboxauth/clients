@@ -17,7 +17,7 @@ require (
 	github.com/ziutek/mymysql v1.5.4 // indirect
 	google.golang.org/appengine v1.4.0 // indirect
 	gopkg.in/gorp.v1 v1.7.2 // indirect
-	impractical.co/userip v0.1.0
+	impractical.co/userip v0.1.1
 	lockbox.dev/hmac v0.1.0
 	yall.in v0.0.1
 )
