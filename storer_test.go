@@ -578,4 +578,11 @@ func TestRedirectURIURIAlreadyExists(t *testing.T) {
 	})
 }
 
-// TODO: test removing a redirect URI that doesn't exist
+func TestRedirectURIDeleteNonexistent(t *testing.T) {
+	runTest(t, func(t *testing.T, storer clients.Storer, ctx context.Context) {
+		err := storer.RemoveRedirectURIs(ctx, []string{uuidOrFail(t)})
+		if err != nil {
+			t.Fatalf("Expected %v, got %v instead", nil, err)
+		}
+	})
+}
