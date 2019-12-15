@@ -100,7 +100,7 @@ func (s Storer) Update(ctx context.Context, id string, change clients.Change) er
 		return err
 	}
 	if client == nil {
-		return clients.ErrClientNotFound
+		return nil
 	}
 	updated := clients.Apply(change, *client.(*clients.Client))
 	err = txn.Insert("client", &updated)
@@ -119,7 +119,7 @@ func (s Storer) Delete(ctx context.Context, id string) error {
 		return err
 	}
 	if exists == nil {
-		return clients.ErrClientNotFound
+		return nil
 	}
 	err = txn.Delete("client", exists)
 	if err != nil {

@@ -287,11 +287,59 @@ func TestClientUpdateNoChange(t *testing.T) {
 	})
 }
 
+func TestClientAlreadyExists(t *testing.T) {
+	runTest(t, func(t *testing.T, storer clients.Storer, ctx context.Context) {
+		client := clients.Client{
+			ID:           uuidOrFail(t),
+			Name:         "Test Client",
+			Confidential: true,
+			CreatedAt:    time.Now().Round(time.Millisecond),
+			CreatedBy:    "test",
+			CreatedByIP:  "127.0.0.1",
+		}
+		ch, err := clients.ChangeSecret([]byte("test secret"))
+		if err != nil {
+			t.Fatalf("Error generating client secret: %s", err)
+		}
+		client = clients.Apply(ch, client)
+		err = storer.Create(ctx, client)
+		if err != nil {
+			t.Fatalf("Error creating client: %s", err)
+		}
+		err = storer.Create(ctx, client)
+		if err != clients.ErrClientAlreadyExists {
+			t.Errorf("Expected %v, got %v", clients.ErrClientAlreadyExists, err)
+		}
+	})
+}
+
 func TestClientGetNonexistent(t *testing.T) {
 	runTest(t, func(t *testing.T, storer clients.Storer, ctx context.Context) {
 		_, err := storer.Get(ctx, "nope")
 		if err != clients.ErrClientNotFound {
 			t.Fatalf("Expected %v, got %v instead", clients.ErrClientNotFound, err)
+		}
+	})
+}
+
+func TestClientUpdateNonexistent(t *testing.T) {
+	runTest(t, func(t *testing.T, storer clients.Storer, ctx context.Context) {
+		ch, err := clients.ChangeSecret([]byte("test secret"))
+		if err != nil {
+			t.Fatalf("Error generating client secret: %s", err)
+		}
+		err = storer.Update(ctx, uuidOrFail(t), ch)
+		if err != nil {
+			t.Fatalf("Expected %v, got %v instead", nil, err)
+		}
+	})
+}
+
+func TestClientDeleteNonexistent(t *testing.T) {
+	runTest(t, func(t *testing.T, storer clients.Storer, ctx context.Context) {
+		err := storer.Delete(ctx, uuidOrFail(t))
+		if err != nil {
+			t.Fatalf("Expected %v, got %v instead", nil, err)
 		}
 	})
 }
@@ -425,12 +473,6 @@ func TestRedirectURIsListNonexistantClient(t *testing.T) {
 		}
 	})
 }
-
-// TODO: test creating a client that already exists
-
-// TODO: test updating a client that doesn't exist
-
-// TODO: test deleting a client that doesn't exist
 
 // TODO: test creating a redirect URI with an ID that already exists
 
