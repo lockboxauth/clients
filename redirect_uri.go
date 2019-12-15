@@ -30,7 +30,7 @@ type ErrRedirectURIAlreadyExists struct {
 
 // Error fills the error interface for RedirectURIs.
 func (e ErrRedirectURIAlreadyExists) Error() string {
-	if e.ID == "" && e.URL == "" && e.Err != nil {
+	if e.ID == "" && e.URI == "" && e.Err != nil {
 		return e.Err.Error()
 	}
 	if e.ID == "" {
