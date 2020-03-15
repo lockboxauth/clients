@@ -65,7 +65,7 @@ func (a APIv1) handleCreateClient(w http.ResponseWriter, r *http.Request) {
 		api.Encode(w, r, http.StatusInternalServerError, Response{Errors: api.ActOfGodError})
 		return
 	}
-	clients.Apply(ch, client)
+	client = clients.Apply(ch, client)
 	err = a.Storer.Create(r.Context(), client)
 	if err != nil {
 		if err == clients.ErrClientAlreadyExists {
