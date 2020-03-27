@@ -384,6 +384,12 @@ func (a APIv1) handleDeleteClientRedirectURI(w http.ResponseWriter, r *http.Requ
 		api.Encode(w, r, http.StatusNotFound, Response{Errors: []api.RequestError{{Param: "uri", Slug: api.RequestErrNotFound}}})
 		return
 	}
+	err = a.Storer.RemoveRedirectURIs(r.Context(), []string{redirectURI.ID})
+	if err != nil {
+		yall.FromContext(r.Context()).WithField("client_id", clientID).WithField("redirect_uri_id", uriID).WithError(err).Error("error removing redirect URI")
+		api.Encode(w, r, http.StatusInternalServerError, Response{Errors: api.ActOfGodError})
+		return
+	}
 	yall.FromContext(r.Context()).WithField("client_id", clientID).WithField("redirect_uri_id", uriID).Debug("redirect URI removed")
 	api.Encode(w, r, http.StatusOK, Response{RedirectURIs: []RedirectURI{redirectURI}})
 }
