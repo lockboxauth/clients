@@ -23,9 +23,7 @@ func (a APIv1) handleCreateClient(w http.ResponseWriter, r *http.Request) {
 		api.Encode(w, r, resp.Status, resp)
 		return
 	}
-	var body struct {
-		Client Client `json:"client"`
-	}
+	var body Client
 	err := json.Unmarshal([]byte(input), &body)
 	if err != nil {
 		yall.FromContext(r.Context()).WithError(err).Debug("Error decoding request body")
@@ -39,16 +37,16 @@ func (a APIv1) handleCreateClient(w http.ResponseWriter, r *http.Request) {
 		api.Encode(w, r, http.StatusInternalServerError, Response{Errors: api.ActOfGodError})
 		return
 	}
-	body.Client.ID = id
-	body.Client.CreatedAt = time.Now()
-	body.Client.CreatedBy = a.Signer.Key
-	body.Client.CreatedByIP = userip.Get(r)
-	if body.Client.CreatedByIP == "" {
+	body.ID = id
+	body.CreatedAt = time.Now()
+	body.CreatedBy = a.Signer.Key
+	body.CreatedByIP = userip.Get(r)
+	if body.CreatedByIP == "" {
 		yall.FromContext(r.Context()).Error("Couldn't determine user's IP")
 		api.Encode(w, r, http.StatusInternalServerError, Response{Errors: api.ActOfGodError})
 		return
 	}
-	if body.Client.Confidential {
+	if body.Confidential {
 		b := make([]byte, 16)
 		_, err := rand.Read(b)
 		if err != nil {
@@ -56,10 +54,10 @@ func (a APIv1) handleCreateClient(w http.ResponseWriter, r *http.Request) {
 			api.Encode(w, r, http.StatusInternalServerError, Response{Errors: api.ActOfGodError})
 			return
 		}
-		body.Client.Secret = hex.EncodeToString(b)
+		body.Secret = hex.EncodeToString(b)
 	}
-	client := coreClient(body.Client)
-	ch, err := clients.ChangeSecret([]byte(body.Client.Secret))
+	client := coreClient(body)
+	ch, err := clients.ChangeSecret([]byte(body.Secret))
 	if err != nil {
 		yall.FromContext(r.Context()).WithError(err).Error("Error setting client secret")
 		api.Encode(w, r, http.StatusInternalServerError, Response{Errors: api.ActOfGodError})
@@ -78,7 +76,7 @@ func (a APIv1) handleCreateClient(w http.ResponseWriter, r *http.Request) {
 	}
 	yall.FromContext(r.Context()).WithField("client_id", client.ID).Debug("client created")
 	respClient := apiClient(client)
-	respClient.Secret = body.Client.Secret
+	respClient.Secret = body.Secret
 	api.Encode(w, r, http.StatusCreated, Response{Clients: []Client{respClient}})
 }
 
