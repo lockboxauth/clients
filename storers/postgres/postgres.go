@@ -14,7 +14,7 @@ import (
 	"github.com/lib/pq"
 )
 
-var redirectURIValueRegex = regexp.MustCompile("^Key \\(([^)]*)\\)=\\(([^)]*)\\) already exists.$")
+var redirectURIValueRegex = regexp.MustCompile(`^Key \(([^)]*)\)=\(([^)]*)\) already exists.$`)
 
 //go:generate go-bindata -pkg migrations -o migrations/generated.go sql/
 

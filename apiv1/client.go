@@ -28,14 +28,6 @@ func coreClient(client Client) clients.Client {
 	}
 }
 
-func coreClients(cs []Client) []clients.Client {
-	res := make([]clients.Client, 0, len(cs))
-	for _, c := range cs {
-		res = append(res, coreClient(c))
-	}
-	return res
-}
-
 func apiClient(client clients.Client) Client {
 	return Client{
 		ID:           client.ID,
@@ -45,12 +37,4 @@ func apiClient(client clients.Client) Client {
 		CreatedBy:    client.CreatedBy,
 		CreatedByIP:  client.CreatedByIP,
 	}
-}
-
-func apiClients(cs []clients.Client) []Client {
-	res := make([]Client, 0, len(cs))
-	for _, c := range cs {
-		res = append(res, apiClient(c))
-	}
-	return res
 }
