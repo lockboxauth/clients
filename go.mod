@@ -12,7 +12,7 @@ require (
 	github.com/rubenv/sql-migrate v0.0.0-20200616145509-8d140a17f351
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	impractical.co/userip v0.1.1
-	lockbox.dev/hmac v0.1.0
+	lockbox.dev/hmac v0.2.0
 	yall.in v0.0.7
 )
 
