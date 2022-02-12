@@ -50,15 +50,7 @@ func (c Client) CheckSecret(attempt string) error {
 			return err
 		}
 		candidate := sha256.New().Sum([]byte(attempt))
-		length := len(hashed)
-		if len(candidate) > length {
-			length = len(candidate)
-		}
-		consistentCandidate := make([]byte, length)
-		consistentExpected := make([]byte, length)
-		subtle.ConstantTimeCopy(1, consistentCandidate, candidate)
-		subtle.ConstantTimeCopy(1, consistentExpected, hashed)
-		if subtle.ConstantTimeCompare(consistentCandidate, consistentExpected) != 1 {
+		if subtle.ConstantTimeCompare(candidate, hashed) != 1 {
 			return ErrIncorrectSecret
 		}
 	default:
