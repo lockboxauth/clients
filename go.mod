@@ -13,7 +13,7 @@ require (
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	impractical.co/userip v0.1.1
 	lockbox.dev/hmac v0.2.0
-	yall.in v0.0.7
+	yall.in v0.0.8
 )
 
 go 1.13
