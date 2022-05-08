@@ -6,6 +6,8 @@ import (
 	"lockbox.dev/clients"
 )
 
+// Client is a representation of the clients.Client type that is suitable to be
+// stored in a PostgreSQL database.
 type Client struct {
 	ID           string    `sql_column:"id"`
 	Name         string    `sql_column:"name"`
@@ -17,32 +19,34 @@ type Client struct {
 	CreatedByIP  string    `sql_column:"created_by_ip"`
 }
 
-func (p Client) GetSQLTableName() string {
+// GetSQLTableName returns the name of the SQL table that the data for this
+// type will be stored in.
+func (Client) GetSQLTableName() string {
 	return "clients"
 }
 
-func fromPostgres(c Client) clients.Client {
+func fromPostgres(client Client) clients.Client {
 	return clients.Client{
-		ID:           c.ID,
-		Name:         c.Name,
-		SecretHash:   c.SecretHash,
-		SecretScheme: c.SecretScheme,
-		Confidential: c.Confidential,
-		CreatedAt:    c.CreatedAt,
-		CreatedBy:    c.CreatedBy,
-		CreatedByIP:  c.CreatedByIP,
+		ID:           client.ID,
+		Name:         client.Name,
+		SecretHash:   client.SecretHash,
+		SecretScheme: client.SecretScheme,
+		Confidential: client.Confidential,
+		CreatedAt:    client.CreatedAt,
+		CreatedBy:    client.CreatedBy,
+		CreatedByIP:  client.CreatedByIP,
 	}
 }
 
-func toPostgres(c clients.Client) Client {
+func toPostgres(client clients.Client) Client {
 	return Client{
-		ID:           c.ID,
-		Name:         c.Name,
-		SecretHash:   c.SecretHash,
-		SecretScheme: c.SecretScheme,
-		Confidential: c.Confidential,
-		CreatedAt:    c.CreatedAt,
-		CreatedBy:    c.CreatedBy,
-		CreatedByIP:  c.CreatedByIP,
+		ID:           client.ID,
+		Name:         client.Name,
+		SecretHash:   client.SecretHash,
+		SecretScheme: client.SecretScheme,
+		Confidential: client.Confidential,
+		CreatedAt:    client.CreatedAt,
+		CreatedBy:    client.CreatedBy,
+		CreatedByIP:  client.CreatedByIP,
 	}
 }

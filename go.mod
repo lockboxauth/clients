@@ -5,6 +5,7 @@ require (
 	darlinggo.co/pan v0.2.0
 	darlinggo.co/trout/v2 v2.1.1
 	github.com/go-sql-driver/mysql v1.5.0 // indirect
+	github.com/google/go-cmp v0.5.2
 	github.com/hashicorp/go-memdb v1.3.2
 	github.com/hashicorp/go-uuid v1.0.3
 	github.com/lib/pq v1.10.5

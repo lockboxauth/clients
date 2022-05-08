@@ -4,14 +4,15 @@ import (
 	"context"
 
 	"darlinggo.co/pan"
+
 	"lockbox.dev/clients"
 )
 
-func createSQL(ctx context.Context, client Client) *pan.Query {
+func createSQL(_ context.Context, client Client) *pan.Query {
 	return pan.Insert(client)
 }
 
-func getSQL(ctx context.Context, id string) *pan.Query {
+func getSQL(_ context.Context, id string) *pan.Query {
 	var client Client
 	q := pan.New("SELECT " + pan.Columns(client).String() + " FROM " + pan.Table(client))
 	q.Where()
@@ -19,7 +20,7 @@ func getSQL(ctx context.Context, id string) *pan.Query {
 	return q.Flush(" ")
 }
 
-func listRedirectURIsSQL(ctx context.Context, clientID string) *pan.Query {
+func listRedirectURIsSQL(_ context.Context, clientID string) *pan.Query {
 	var redirectURI RedirectURI
 	q := pan.New("SELECT " + pan.Columns(redirectURI).String() + " FROM " + pan.Table(redirectURI))
 	q.Where()
@@ -28,25 +29,25 @@ func listRedirectURIsSQL(ctx context.Context, clientID string) *pan.Query {
 	return q.Flush(" ")
 }
 
-func updateSQL(ctx context.Context, id string, change clients.Change) *pan.Query {
+func updateSQL(_ context.Context, id string, change clients.Change) *pan.Query {
 	var client Client
-	q := pan.New("UPDATE " + pan.Table(client) + " SET ")
+	query := pan.New("UPDATE " + pan.Table(client) + " SET ")
 	if change.Name != nil {
-		q.Assign(client, "Name", *change.Name)
+		query.Assign(client, "Name", *change.Name)
 	}
 	if change.SecretHash != nil {
-		q.Assign(client, "SecretHash", *change.SecretHash)
+		query.Assign(client, "SecretHash", *change.SecretHash)
 	}
 	if change.SecretScheme != nil {
-		q.Assign(client, "SecretScheme", *change.SecretScheme)
+		query.Assign(client, "SecretScheme", *change.SecretScheme)
 	}
-	q.Flush(", ")
-	q.Where()
-	q.Comparison(client, "ID", "=", id)
-	return q.Flush(" ")
+	query.Flush(", ")
+	query.Where()
+	query.Comparison(client, "ID", "=", id)
+	return query.Flush(" ")
 }
 
-func deleteSQL(ctx context.Context, id string) *pan.Query {
+func deleteSQL(_ context.Context, id string) *pan.Query {
 	var client Client
 	q := pan.New("DELETE FROM " + pan.Table(client))
 	q.Where()
@@ -54,7 +55,7 @@ func deleteSQL(ctx context.Context, id string) *pan.Query {
 	return q.Flush(" ")
 }
 
-func addRedirectURIsSQL(ctx context.Context, uris []RedirectURI) *pan.Query {
+func addRedirectURIsSQL(_ context.Context, uris []RedirectURI) *pan.Query {
 	tableNamers := make([]pan.SQLTableNamer, 0, len(uris))
 	for _, uri := range uris {
 		tableNamers = append(tableNamers, uri)
@@ -62,14 +63,14 @@ func addRedirectURIsSQL(ctx context.Context, uris []RedirectURI) *pan.Query {
 	return pan.Insert(tableNamers...)
 }
 
-func removeRedirectURIsSQL(ctx context.Context, uris []string) *pan.Query {
+func removeRedirectURIsSQL(_ context.Context, uris []string) *pan.Query {
 	var uri RedirectURI
-	q := pan.New("DELETE FROM " + pan.Table(uri))
-	q.Where()
+	query := pan.New("DELETE FROM " + pan.Table(uri))
+	query.Where()
 	interfaces := make([]interface{}, 0, len(uris))
 	for _, uri := range uris {
 		interfaces = append(interfaces, uri)
 	}
-	q.In(uri, "ID", interfaces...)
-	return q.Flush(" ")
+	query.In(uri, "ID", interfaces...)
+	return query.Flush(" ")
 }

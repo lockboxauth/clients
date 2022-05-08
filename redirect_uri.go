@@ -20,16 +20,16 @@ type RedirectURI struct {
 	CreatedByIP string    // the IP that created this redirect URI
 }
 
-// ErrRedirectURIAlreadyExists is returned when a redirect URI already exists
+// RedirectURIAlreadyExistsError is returned when a redirect URI already exists
 // in a Storer.
-type ErrRedirectURIAlreadyExists struct {
+type RedirectURIAlreadyExistsError struct {
 	ID  string
 	URI string // the URI that already exists
 	Err error  // the error that was returned, if any
 }
 
 // Error fills the error interface for RedirectURIs.
-func (e ErrRedirectURIAlreadyExists) Error() string {
+func (e RedirectURIAlreadyExistsError) Error() string {
 	if e.ID == "" && e.URI == "" && e.Err != nil {
 		return e.Err.Error()
 	}

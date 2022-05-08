@@ -1,6 +1,8 @@
 package clients
 
-import "context"
+import (
+	"context"
+)
 
 // Storer is an interface for storing, retrieving, and modifying Clients and
 // the metadata surrounding them.

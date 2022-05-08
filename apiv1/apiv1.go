@@ -33,7 +33,12 @@ type APIv1 struct {
 func (a APIv1) VerifyRequest(r *http.Request) (string, *Response) {
 	var payload string
 	if r.Method == "POST" || r.Method == "PUT" {
-		defer r.Body.Close()
+		defer func() {
+			err := r.Body.Close()
+			if err != nil {
+				a.Log.WithError(err).Error("error closing request body")
+			}
+		}()
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			a.Log.WithError(err).Error("error reading request")

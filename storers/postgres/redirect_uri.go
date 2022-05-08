@@ -6,6 +6,8 @@ import (
 	"lockbox.dev/clients"
 )
 
+// RedirectURI is a representation of the clients.RedirectURI type that is
+// suitable to be stored in a PostgreSQL database.
 type RedirectURI struct {
 	ID          string    `sql_column:"id"`
 	URI         string    `sql_column:"uri"`
@@ -16,30 +18,32 @@ type RedirectURI struct {
 	CreatedByIP string    `sql_column:"created_by_ip"`
 }
 
-func (p RedirectURI) GetSQLTableName() string {
+// GetSQLTableName returns the name of the SQL table that the data for this
+// type will be stored in.
+func (RedirectURI) GetSQLTableName() string {
 	return "redirect_uris"
 }
 
-func uriFromPostgres(u RedirectURI) clients.RedirectURI {
+func uriFromPostgres(uri RedirectURI) clients.RedirectURI {
 	return clients.RedirectURI{
-		ID:          u.ID,
-		URI:         u.URI,
-		IsBaseURI:   u.IsBaseURI,
-		ClientID:    u.ClientID,
-		CreatedAt:   u.CreatedAt,
-		CreatedBy:   u.CreatedBy,
-		CreatedByIP: u.CreatedByIP,
+		ID:          uri.ID,
+		URI:         uri.URI,
+		IsBaseURI:   uri.IsBaseURI,
+		ClientID:    uri.ClientID,
+		CreatedAt:   uri.CreatedAt,
+		CreatedBy:   uri.CreatedBy,
+		CreatedByIP: uri.CreatedByIP,
 	}
 }
 
-func uriToPostgres(u clients.RedirectURI) RedirectURI {
+func uriToPostgres(uri clients.RedirectURI) RedirectURI {
 	return RedirectURI{
-		ID:          u.ID,
-		URI:         u.URI,
-		IsBaseURI:   u.IsBaseURI,
-		ClientID:    u.ClientID,
-		CreatedAt:   u.CreatedAt,
-		CreatedBy:   u.CreatedBy,
-		CreatedByIP: u.CreatedByIP,
+		ID:          uri.ID,
+		URI:         uri.URI,
+		IsBaseURI:   uri.IsBaseURI,
+		ClientID:    uri.ClientID,
+		CreatedAt:   uri.CreatedAt,
+		CreatedBy:   uri.CreatedBy,
+		CreatedByIP: uri.CreatedByIP,
 	}
 }

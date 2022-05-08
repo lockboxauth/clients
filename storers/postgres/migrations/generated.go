@@ -182,8 +182,8 @@ func AssetNames() []string {
 
 // _bindata is a table, holding each asset generator, mapped to its name.
 var _bindata = map[string]func() (*asset, error){
-	"sql/clients_20181208_1_init.sql": sqlClients_20181208_1_initSql,
-	"sql/clients_20190816_1_add_name.sql": sqlClients_20190816_1_add_nameSql,
+	"sql/clients_20181208_1_init.sql":        sqlClients_20181208_1_initSql,
+	"sql/clients_20190816_1_add_name.sql":    sqlClients_20190816_1_add_nameSql,
 	"sql/clients_20190920_1_unique_uris.sql": sqlClients_20190920_1_unique_urisSql,
 }
 
@@ -226,10 +226,11 @@ type bintree struct {
 	Func     func() (*asset, error)
 	Children map[string]*bintree
 }
+
 var _bintree = &bintree{nil, map[string]*bintree{
 	"sql": &bintree{nil, map[string]*bintree{
-		"clients_20181208_1_init.sql": &bintree{sqlClients_20181208_1_initSql, map[string]*bintree{}},
-		"clients_20190816_1_add_name.sql": &bintree{sqlClients_20190816_1_add_nameSql, map[string]*bintree{}},
+		"clients_20181208_1_init.sql":        &bintree{sqlClients_20181208_1_initSql, map[string]*bintree{}},
+		"clients_20190816_1_add_name.sql":    &bintree{sqlClients_20190816_1_add_nameSql, map[string]*bintree{}},
 		"clients_20190920_1_unique_uris.sql": &bintree{sqlClients_20190920_1_unique_urisSql, map[string]*bintree{}},
 	}},
 }}
@@ -280,4 +281,3 @@ func _filePath(dir, name string) string {
 	cannonicalName := strings.Replace(name, "\\", "/", -1)
 	return filepath.Join(append([]string{dir}, strings.Split(cannonicalName, "/")...)...)
 }
-

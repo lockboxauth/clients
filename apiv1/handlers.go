@@ -1,9 +1,11 @@
 package apiv1
 
 import (
+	"context"
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -13,8 +15,9 @@ import (
 	"darlinggo.co/trout/v2"
 	uuid "github.com/hashicorp/go-uuid"
 	"impractical.co/userip"
-	"lockbox.dev/clients"
 	yall "yall.in"
+
+	"lockbox.dev/clients"
 )
 
 func (a APIv1) handleCreateClient(w http.ResponseWriter, r *http.Request) {
@@ -47,26 +50,26 @@ func (a APIv1) handleCreateClient(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if body.Confidential {
-		b := make([]byte, 16)
-		_, err := rand.Read(b)
+		secretBytes := make([]byte, 16) //nolint:gomnd // chosen arbitrarily, doesn't matter if it changes
+		_, err = rand.Read(secretBytes)
 		if err != nil {
 			yall.FromContext(r.Context()).WithError(err).Error("Couldn't generate client secret")
 			api.Encode(w, r, http.StatusInternalServerError, Response{Errors: api.ActOfGodError})
 			return
 		}
-		body.Secret = hex.EncodeToString(b)
+		body.Secret = hex.EncodeToString(secretBytes)
 	}
 	client := coreClient(body)
-	ch, err := clients.ChangeSecret([]byte(body.Secret))
+	change, err := clients.ChangeSecret([]byte(body.Secret))
 	if err != nil {
 		yall.FromContext(r.Context()).WithError(err).Error("Error setting client secret")
 		api.Encode(w, r, http.StatusInternalServerError, Response{Errors: api.ActOfGodError})
 		return
 	}
-	client = clients.Apply(ch, client)
+	client = clients.Apply(change, client)
 	err = a.Storer.Create(r.Context(), client)
 	if err != nil {
-		if err == clients.ErrClientAlreadyExists {
+		if errors.Is(err, clients.ErrClientAlreadyExists) {
 			api.Encode(w, r, http.StatusBadRequest, Response{Errors: []api.RequestError{{Field: "/client/id", Slug: api.RequestErrConflict}}})
 			return
 		}
@@ -81,8 +84,7 @@ func (a APIv1) handleCreateClient(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a APIv1) handleGetClient(w http.ResponseWriter, r *http.Request) {
-	_, resp := a.VerifyRequest(r)
-	if resp != nil {
+	if _, resp := a.VerifyRequest(r); resp != nil {
 		api.Encode(w, r, resp.Status, resp)
 		return
 	}
@@ -94,7 +96,7 @@ func (a APIv1) handleGetClient(w http.ResponseWriter, r *http.Request) {
 	}
 	client, err := a.Storer.Get(r.Context(), id)
 	if err != nil {
-		if err == clients.ErrClientNotFound {
+		if errors.Is(err, clients.ErrClientNotFound) {
 			api.Encode(w, r, http.StatusNotFound, Response{Errors: []api.RequestError{{Param: "id", Slug: api.RequestErrNotFound}}})
 			return
 		}
@@ -107,8 +109,7 @@ func (a APIv1) handleGetClient(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a APIv1) handleDeleteClient(w http.ResponseWriter, r *http.Request) {
-	_, resp := a.VerifyRequest(r)
-	if resp != nil {
+	if _, resp := a.VerifyRequest(r); resp != nil {
 		api.Encode(w, r, resp.Status, resp)
 		return
 	}
@@ -120,7 +121,7 @@ func (a APIv1) handleDeleteClient(w http.ResponseWriter, r *http.Request) {
 	}
 	client, err := a.Storer.Get(r.Context(), clientID)
 	if err != nil {
-		if err == clients.ErrClientNotFound {
+		if errors.Is(err, clients.ErrClientNotFound) {
 			api.Encode(w, r, http.StatusNotFound, Response{Errors: []api.RequestError{{Param: "id", Slug: api.RequestErrNotFound}}})
 			return
 		}
@@ -148,7 +149,7 @@ func (a APIv1) handleDeleteClient(w http.ResponseWriter, r *http.Request) {
 	}
 	err = a.Storer.Delete(r.Context(), clientID)
 	if err != nil {
-		if err == clients.ErrClientNotFound {
+		if errors.Is(err, clients.ErrClientNotFound) {
 			api.Encode(w, r, http.StatusNotFound, Response{Errors: []api.RequestError{{Param: "id", Slug: api.RequestErrNotFound}}})
 			return
 		}
@@ -161,8 +162,7 @@ func (a APIv1) handleDeleteClient(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a APIv1) handleResetClientSecret(w http.ResponseWriter, r *http.Request) {
-	_, resp := a.VerifyRequest(r)
-	if resp != nil {
+	if _, resp := a.VerifyRequest(r); resp != nil {
 		api.Encode(w, r, resp.Status, resp)
 		return
 	}
@@ -174,7 +174,7 @@ func (a APIv1) handleResetClientSecret(w http.ResponseWriter, r *http.Request) {
 	}
 	client, err := a.Storer.Get(r.Context(), clientID)
 	if err != nil {
-		if err == clients.ErrClientNotFound {
+		if errors.Is(err, clients.ErrClientNotFound) {
 			api.Encode(w, r, http.StatusNotFound, Response{Errors: []api.RequestError{{Param: "id", Slug: api.RequestErrNotFound}}})
 			return
 		}
@@ -182,24 +182,24 @@ func (a APIv1) handleResetClientSecret(w http.ResponseWriter, r *http.Request) {
 		api.Encode(w, r, http.StatusInternalServerError, Response{Errors: api.ActOfGodError})
 		return
 	}
-	b := make([]byte, 16)
-	_, err = rand.Read(b)
+	secretBytes := make([]byte, 16) //nolint:gomnd // chosen arbitrarily, doesn't matter if it changes
+	_, err = rand.Read(secretBytes)
 	if err != nil {
 		yall.FromContext(r.Context()).WithError(err).Error("Couldn't generate client secret")
 		api.Encode(w, r, http.StatusInternalServerError, Response{Errors: api.ActOfGodError})
 		return
 	}
 	respClient := apiClient(client)
-	respClient.Secret = hex.EncodeToString(b)
-	ch, err := clients.ChangeSecret([]byte(respClient.Secret))
+	respClient.Secret = hex.EncodeToString(secretBytes)
+	change, err := clients.ChangeSecret([]byte(respClient.Secret))
 	if err != nil {
 		yall.FromContext(r.Context()).WithError(err).Error("Error setting client secret")
 		api.Encode(w, r, http.StatusInternalServerError, Response{Errors: api.ActOfGodError})
 		return
 	}
-	err = a.Storer.Update(r.Context(), clientID, ch)
+	err = a.Storer.Update(r.Context(), clientID, change)
 	if err != nil {
-		if err == clients.ErrClientNotFound {
+		if errors.Is(err, clients.ErrClientNotFound) {
 			api.Encode(w, r, http.StatusNotFound, Response{Errors: []api.RequestError{{Param: "id", Slug: api.RequestErrNotFound}}})
 			return
 		}
@@ -212,8 +212,7 @@ func (a APIv1) handleResetClientSecret(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a APIv1) handleListClientRedirectURIs(w http.ResponseWriter, r *http.Request) {
-	_, resp := a.VerifyRequest(r)
-	if resp != nil {
+	if _, resp := a.VerifyRequest(r); resp != nil {
 		api.Encode(w, r, resp.Status, resp)
 		return
 	}
@@ -225,7 +224,7 @@ func (a APIv1) handleListClientRedirectURIs(w http.ResponseWriter, r *http.Reque
 	}
 	_, err := a.Storer.Get(r.Context(), clientID)
 	if err != nil {
-		if err == clients.ErrClientNotFound {
+		if errors.Is(err, clients.ErrClientNotFound) {
 			api.Encode(w, r, http.StatusNotFound, Response{Errors: []api.RequestError{{Param: "id", Slug: api.RequestErrNotFound}}})
 			return
 		}
@@ -257,7 +256,7 @@ func (a APIv1) handleCreateClientRedirectURIs(w http.ResponseWriter, r *http.Req
 	}
 	_, err := a.Storer.Get(r.Context(), clientID)
 	if err != nil {
-		if err == clients.ErrClientNotFound {
+		if errors.Is(err, clients.ErrClientNotFound) {
 			api.Encode(w, r, http.StatusNotFound, Response{Errors: []api.RequestError{{Param: "id", Slug: api.RequestErrNotFound}}})
 			return
 		}
@@ -294,7 +293,8 @@ func (a APIv1) handleCreateClientRedirectURIs(w http.ResponseWriter, r *http.Req
 		return
 	}
 	for pos, uri := range body.RedirectURIs {
-		id, err := uuid.GenerateUUID()
+		var id string
+		id, err = uuid.GenerateUUID()
 		if err != nil {
 			yall.FromContext(r.Context()).WithError(err).Error("Error creating redirect URI ID")
 			api.Encode(w, r, http.StatusInternalServerError, Response{Errors: api.ActOfGodError})
@@ -310,17 +310,12 @@ func (a APIv1) handleCreateClientRedirectURIs(w http.ResponseWriter, r *http.Req
 	redirectURIs := coreRedirectURIs(body.RedirectURIs)
 	err = a.Storer.AddRedirectURIs(r.Context(), redirectURIs)
 	if err != nil {
-		if e, ok := err.(clients.ErrRedirectURIAlreadyExists); ok {
-			pos := -1
-			for i, u := range redirectURIs {
-				if u.URI == e.URI {
-					pos = i
-					break
-				}
-			}
+		var uriAlreadyExistsErr clients.RedirectURIAlreadyExistsError
+		if errors.As(err, &uriAlreadyExistsErr) {
+			pos := findRedirectURIErrorPos(r.Context(), redirectURIs, uriAlreadyExistsErr)
 			if pos < 0 {
 				log := yall.FromContext(r.Context())
-				log = log.WithField("err_uri", e.URI)
+				log = log.WithField("err_uri", uriAlreadyExistsErr.URI)
 				log = log.WithField("passed_uris", redirectURIs)
 				log.Error("source of ErrRedirectURIAlreadyExists wasn't a passed URI")
 				api.Encode(w, r, http.StatusInternalServerError, Response{Errors: api.ActOfGodError})
@@ -338,8 +333,7 @@ func (a APIv1) handleCreateClientRedirectURIs(w http.ResponseWriter, r *http.Req
 }
 
 func (a APIv1) handleDeleteClientRedirectURI(w http.ResponseWriter, r *http.Request) {
-	_, resp := a.VerifyRequest(r)
-	if resp != nil {
+	if _, resp := a.VerifyRequest(r); resp != nil {
 		api.Encode(w, r, resp.Status, resp)
 		return
 	}
@@ -356,7 +350,7 @@ func (a APIv1) handleDeleteClientRedirectURI(w http.ResponseWriter, r *http.Requ
 	}
 	_, err := a.Storer.Get(r.Context(), clientID)
 	if err != nil {
-		if err == clients.ErrClientNotFound {
+		if errors.Is(err, clients.ErrClientNotFound) {
 			api.Encode(w, r, http.StatusNotFound, Response{Errors: []api.RequestError{{Param: "id", Slug: api.RequestErrNotFound}}})
 			return
 		}
@@ -390,4 +384,13 @@ func (a APIv1) handleDeleteClientRedirectURI(w http.ResponseWriter, r *http.Requ
 	}
 	yall.FromContext(r.Context()).WithField("client_id", clientID).WithField("redirect_uri_id", uriID).Debug("redirect URI removed")
 	api.Encode(w, r, http.StatusOK, Response{RedirectURIs: []RedirectURI{redirectURI}})
+}
+
+func findRedirectURIErrorPos(_ context.Context, uris []clients.RedirectURI, uriErr clients.RedirectURIAlreadyExistsError) int {
+	for i, u := range uris {
+		if u.URI == uriErr.URI {
+			return i
+		}
+	}
+	return -1
 }
