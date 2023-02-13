@@ -2,7 +2,7 @@ module lockbox.dev/clients
 
 require (
 	darlinggo.co/api v0.0.0-20201117043120-8f030ab31193
-	darlinggo.co/pan v0.2.0
+	darlinggo.co/pan v0.3.0
 	darlinggo.co/trout/v2 v2.1.1
 	github.com/google/go-cmp v0.5.9
 	github.com/hashicorp/go-memdb v1.3.4
@@ -20,7 +20,6 @@ require (
 	github.com/google/uuid v1.1.2 // indirect
 	github.com/hashicorp/go-immutable-radix v1.3.0 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
-	github.com/mattn/go-sqlite3 v1.14.6 // indirect
 	github.com/mitchellh/go-testing-interface v1.14.1 // indirect
 	github.com/pborman/uuid v1.2.1 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
